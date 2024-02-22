@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 #include <SPI.h> // include libraries
 #include <LoRa.h>
-
+#include <U8x8lib.h>
 
 #define SCK 5 // GPIO5 -- SX127x's SCK
 #define MISO 19 // GPIO19 -- SX127x's MISO
@@ -15,6 +15,9 @@
 #define sf 8
 #define sb 125E3
 
+//Display
+
+U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(15,4,16); // clock, data, reset
 
 // WiFi
 const char *ssid = "raspi-webgui"; // Enter your Wi-Fi name
@@ -49,6 +52,11 @@ union pack
 void setup() {
   // Set software serial baud to 115200;
   Serial.begin(9600);
+
+  //Display
+
+  u8x8.begin(); // initialize OLED
+  u8x8.setFont(u8x8_font_chroma48medium8_r);
 
   // Connecting to a WiFi network
   WiFi.begin(ssid, password);
@@ -105,7 +113,8 @@ void callback(char *topic, byte *payload, unsigned int length) {
 void loop() {
   //Partie MQTT
   param = "param;jvas;868E6;7;125E3";
-  // param = "param;" + frequence + ";" + sf + ";" + sb;
+  // param = "param;" + freq + ";" + sf + ";" + sb;
+  // snprintf(param, sizeof(param), "param;%s;%s;%s;%s", groupe, freq, sf, sb );
 
   client.publish(topic, param);
   Serial.println("Message envoyé");
